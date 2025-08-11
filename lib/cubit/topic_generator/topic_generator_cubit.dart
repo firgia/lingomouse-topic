@@ -1,9 +1,11 @@
 import 'dart:convert';
-
+import 'dart:io';
+import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:chat_gpt_sdk/chat_gpt_sdk.dart';
-import 'package:dio/dio.dart';
+import 'package:dio/dio.dart' hide Response;
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:path_provider/path_provider.dart';
 
 import '../../data/data.dart';
 
@@ -27,9 +29,24 @@ class TopicGeneratorCubit extends Cubit<TopicGeneratorState> {
     try {
       emit(const TopicGeneratorState.loading(draftTopic: null));
 
+      String? dallEPrompt = await _generateDallEPrompt(
+        name: name,
+        description: description,
+        level: level,
+      );
+
+      if (dallEPrompt == null) {
+        emit(TopicGeneratorState.error(
+          draftTopic: state.draftTopic,
+          message: "Failed to generate image prompt",
+        ));
+
+        return;
+      }
+
       final imageResult = await openAI.generateImage(
         GenerateImage(
-          _imagePrompt("$name - $description"),
+          dallEPrompt,
           1,
           model: DallE3(),
           size: ImageSize.size1024,
@@ -47,6 +64,8 @@ class TopicGeneratorCubit extends Cubit<TopicGeneratorState> {
 
         return;
       }
+
+      File imageFile = await _downloadImage(imageUrl);
 
       final response = await openAI.onChatCompletion(
         request: ChatCompleteText(
@@ -85,7 +104,7 @@ class TopicGeneratorCubit extends Cubit<TopicGeneratorState> {
         emit(TopicGeneratorState.completed(
             draftTopic: DraftTopic.fromJson({
           "level": level,
-          "image": imageUrl,
+          "image": imageFile.path,
           ...jsonData,
         })));
       }
@@ -95,6 +114,39 @@ class TopicGeneratorCubit extends Cubit<TopicGeneratorState> {
         message: "Unknown error",
       ));
     }
+  }
+
+  Future<String?> _generateDallEPrompt({
+    required String name,
+    required String description,
+    required String level,
+  }) async {
+    final responseImagePrompt = await openAI.onChatCompletion(
+      request: ChatCompleteText(
+        model: Gpt4OChatModel(),
+        maxToken: 4096,
+        messages: [
+          Messages(
+            role: Role.system,
+            content: _fetchImagePrompt,
+          ).toJson(),
+          Messages(
+            role: Role.user,
+            content: '''
+            {
+              "name": "$name",
+              "description": "$description",
+              "level": $level,
+            }
+            ''',
+          ).toJson(),
+        ],
+      ),
+    );
+
+    final resultMessage = responseImagePrompt?.choices.firstOrNull?.message;
+
+    return resultMessage?.content;
   }
 
   String get prompt => '''
@@ -165,7 +217,45 @@ class TopicGeneratorCubit extends Cubit<TopicGeneratorState> {
     - Return only the JSON array without any extra text or formatting.
   ''';
 
-  String _imagePrompt(String topic) {
-    return "An illustrative scene set in a language learning class. There are three people of diverse descents involved namely, a Hispanic female teacher standing in front of a blackboard, a Caucasian male student introducing himself in English and sitting at a desk, and a Middle-Eastern female student introducing herself in French and also sitting at a desk. Feature cues for the language learning activity, such as flashcards with vocabulary words, textbooks, and a blackboard with '$topic' written on it.";
+  String get _fetchImagePrompt {
+    return '''
+        You are an AI prompt generator for DALL·E.
+        I will give you a JSON array of conversation topics, each with a name, description, and level.
+        For each topic, create a realistic, high-quality image prompt that visually represents the activity or situation described in the topic name and description.
+
+        Image requirements:
+        - Depict real, diverse people (natural appearance, various ages and ethnicities) in a relevant and believable setting for the topic.
+        - Use a wide scene composition so the image works for a 16:4 aspect ratio — avoid close-ups, include background context, and use medium or wide shots.
+        - Spread the action across the frame so the subject does not get cropped.
+        - Add environmental details (e.g., objects, scenery, decor) that enhance the realism.
+        - Photography style: wide-angle view, cinematic composition, soft natural light or warm lighting, candid expressions, modern casual clothing, shallow depth of field, high resolution.
+        - End each prompt with “16:9 aspect ratio.”
+    ''';
+  }
+
+  Future<File> _downloadImage(String imageUrl) async {
+    // 1. Download the image and save it as a file
+    final tempDir = await getTemporaryDirectory();
+    final filePath = '${tempDir.path}/${DateTime.now()}.jpg';
+
+    final response = await Dio().download(imageUrl, filePath);
+    if (response.statusCode != 200) {
+      throw Exception('Failed to download image');
+    }
+
+    File imageFile = File(filePath);
+
+    XFile? compressedFile = await FlutterImageCompress.compressAndGetFile(
+      imageFile.absolute.path,
+      '${imageFile.path}_compressed.jpg',
+      format: CompressFormat.jpeg,
+      keepExif: true,
+    );
+
+    if (compressedFile != null) {
+      imageFile = File(compressedFile.path);
+    }
+
+    return imageFile;
   }
 }

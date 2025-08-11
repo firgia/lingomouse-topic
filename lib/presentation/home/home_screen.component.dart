@@ -102,7 +102,7 @@ class _TopicCard extends StatelessWidget {
 }
 
 class _TopicGenerator extends StatefulWidget {
-  const _TopicGenerator({super.key});
+  const _TopicGenerator();
 
   @override
   State<_TopicGenerator> createState() => _TopicGeneratorState();
@@ -148,8 +148,10 @@ class _TopicGeneratorState extends State<_TopicGenerator> {
                     controller: descController,
                     decoration: const InputDecoration(
                       border: OutlineInputBorder(),
-                      hintText: "Enter name",
+                      hintText: "Enter description",
                     ),
+                    maxLines: 5,
+                    minLines: 1,
                   ),
                   const SizedBox(height: 12),
                   isLoading
@@ -164,6 +166,30 @@ class _TopicGeneratorState extends State<_TopicGenerator> {
                           },
                           icon: const Icon(Icons.send),
                         ),
+                  const SizedBox(height: 12),
+                  if (topic != null) ...[
+                    BlocBuilder<SaveTopicCubit, SaveTopicState>(
+                      builder: (context, state) {
+                        String label = "Save";
+                        bool isLoading = state.maybeWhen(
+                          loading: (total, totalSaved) {
+                            label = "${totalSaved / total} Saved";
+                            return true;
+                          },
+                          orElse: () => false,
+                        );
+
+                        return ElevatedButton(
+                          onPressed: () {
+                            if (!isLoading) {
+                              context.read<SaveTopicCubit>().save(topic);
+                            }
+                          },
+                          child: Text(label),
+                        );
+                      },
+                    ),
+                  ],
                 ],
               ),
             ),
@@ -192,8 +218,8 @@ class _TopicGeneratorState extends State<_TopicGenerator> {
 
                         return Column(
                           children: [
-                            CachedNetworkImage(
-                              imageUrl: topic.image,
+                            Image.file(
+                              File(topic.image),
                               height: 400,
                               fit: BoxFit.fitHeight,
                             ),

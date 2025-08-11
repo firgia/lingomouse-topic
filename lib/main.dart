@@ -26,6 +26,9 @@ class MyApp extends StatelessWidget {
         BlocProvider(
           create: (context) => sl<TopicGeneratorCubit>(),
         ),
+        BlocProvider(
+          create: (context) => sl<SaveTopicCubit>(),
+        ),
       ],
       child: MaterialApp(
         title: "Home",

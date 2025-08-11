@@ -44,7 +44,7 @@ class ApiProviderImpl extends ApiProvider {
   @override
   Map<String, String> get headers {
     String token =
-        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzU1NDM1NDc3LCJpYXQiOjE3NTQ4MzA2NzcsImp0aSI6IjRlNzg1MTM1NWQ3MjQxNWZiODBjOWFlYzVjZGM0YjQ3IiwidXNlcl9pZCI6MTA0NTk3fQ.ynlIOFKzEG9KCXtODp0APx8qSnEolB3D9Jkd1cSYLb4";
+        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzU1NTA4NTM3LCJpYXQiOjE3NTQ5MDM3MzcsImp0aSI6ImRmMzcxZGUzZjJmMzQ4OTNhMzUzZDI3MDY1ZjMyMDA3IiwidXNlcl9pZCI6MTA0NTk3fQ.5WaJr6abVcmyvR8eJD0DcdmFA9f1gK3J4qzmeM_SE00";
 
     return {
       "Content-Type": "application/json",
@@ -94,7 +94,7 @@ class ApiProviderImpl extends ApiProvider {
       "name": name,
       "description": description,
       "level": level,
-      "is_active": isActive,
+      "is_active": "True",
     });
 
     return dio.post(

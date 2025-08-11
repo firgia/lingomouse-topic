@@ -54,4 +54,9 @@ Future<void> setupInjection() async {
       openAI: openAI,
     ),
   );
+
+  sl.registerSingleton<SaveTopicCubit>(SaveTopicCubit(
+    topicGeneratorCubit: sl<TopicGeneratorCubit>(),
+    topicRepository: sl<TopicRepository>(),
+  ));
 }
