@@ -51,6 +51,7 @@ class TopicGeneratorCubit extends Cubit<TopicGeneratorState> {
           model: DallE3(),
           size: ImageSize.size1024,
           quality: "standard",
+          style: "natural",
         ),
       );
 
@@ -154,7 +155,7 @@ class TopicGeneratorCubit extends Cubit<TopicGeneratorState> {
 
     Use a casual and beginner-friendly tone which easy to understand by our students.
 
-    The response must be in valid JSON and follow this exact structure:
+    The response must be in valid JSON and follow this sample structure:
       {
       "es": {
         "name": "Dar Opiniones",

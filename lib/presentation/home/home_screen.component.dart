@@ -132,6 +132,7 @@ class _TopicGeneratorState extends State<_TopicGenerator> {
         DraftTopic? topic = state.draftTopic;
 
         return Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Expanded(
               child: Column(
@@ -161,7 +162,7 @@ class _TopicGeneratorState extends State<_TopicGenerator> {
                             context.read<TopicGeneratorCubit>().generate(
                                   name: nameController.text,
                                   description: descController.text,
-                                  level: "Beginner",
+                                  level: "Advanced",
                                 );
                           },
                           icon: const Icon(Icons.send),
@@ -173,7 +174,8 @@ class _TopicGeneratorState extends State<_TopicGenerator> {
                         String label = "Save";
                         bool isLoading = state.maybeWhen(
                           loading: (total, totalSaved) {
-                            label = "${totalSaved / total} Saved";
+                            label =
+                                "${((totalSaved / total) * 100).toInt()} % Saved";
                             return true;
                           },
                           orElse: () => false,

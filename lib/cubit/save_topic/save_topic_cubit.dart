@@ -69,8 +69,8 @@ class SaveTopicCubit extends Cubit<SaveTopicState> {
 
     int totalSaved = 0;
     emit(SaveTopicState.loading(total: total, totalSaved: totalSaved));
-
-    await _save(
+    List<Future> futures = [];
+    futures.add(_save(
       ids: english,
       topic: draftTopic,
       data: draftTopic.en,
@@ -78,9 +78,9 @@ class SaveTopicCubit extends Cubit<SaveTopicState> {
         totalSaved++;
         emit(SaveTopicState.loading(total: total, totalSaved: totalSaved));
       },
-    );
+    ));
 
-    await _save(
+    futures.add(_save(
       ids: spanish,
       topic: draftTopic,
       data: draftTopic.es,
@@ -88,9 +88,9 @@ class SaveTopicCubit extends Cubit<SaveTopicState> {
         totalSaved++;
         emit(SaveTopicState.loading(total: total, totalSaved: totalSaved));
       },
-    );
+    ));
 
-    await _save(
+    futures.add(_save(
       ids: italian,
       topic: draftTopic,
       data: draftTopic.it,
@@ -98,9 +98,9 @@ class SaveTopicCubit extends Cubit<SaveTopicState> {
         totalSaved++;
         emit(SaveTopicState.loading(total: total, totalSaved: totalSaved));
       },
-    );
+    ));
 
-    await _save(
+    futures.add(_save(
       ids: german,
       topic: draftTopic,
       data: draftTopic.de,
@@ -108,9 +108,9 @@ class SaveTopicCubit extends Cubit<SaveTopicState> {
         totalSaved++;
         emit(SaveTopicState.loading(total: total, totalSaved: totalSaved));
       },
-    );
+    ));
 
-    await _save(
+    futures.add(_save(
       ids: czech,
       topic: draftTopic,
       data: draftTopic.cs,
@@ -118,9 +118,9 @@ class SaveTopicCubit extends Cubit<SaveTopicState> {
         totalSaved++;
         emit(SaveTopicState.loading(total: total, totalSaved: totalSaved));
       },
-    );
+    ));
 
-    await _save(
+    futures.add(_save(
       ids: sweden,
       topic: draftTopic,
       data: draftTopic.sv,
@@ -128,9 +128,9 @@ class SaveTopicCubit extends Cubit<SaveTopicState> {
         totalSaved++;
         emit(SaveTopicState.loading(total: total, totalSaved: totalSaved));
       },
-    );
+    ));
 
-    await _save(
+    futures.add(_save(
       ids: chinese,
       topic: draftTopic,
       data: draftTopic.zh,
@@ -138,9 +138,9 @@ class SaveTopicCubit extends Cubit<SaveTopicState> {
         totalSaved++;
         emit(SaveTopicState.loading(total: total, totalSaved: totalSaved));
       },
-    );
+    ));
 
-    await _save(
+    futures.add(_save(
       ids: norwegianBokmal,
       topic: draftTopic,
       data: draftTopic.nb,
@@ -148,9 +148,9 @@ class SaveTopicCubit extends Cubit<SaveTopicState> {
         totalSaved++;
         emit(SaveTopicState.loading(total: total, totalSaved: totalSaved));
       },
-    );
+    ));
 
-    await _save(
+    futures.add(_save(
       ids: portuguese,
       topic: draftTopic,
       data: draftTopic.pt,
@@ -158,9 +158,9 @@ class SaveTopicCubit extends Cubit<SaveTopicState> {
         totalSaved++;
         emit(SaveTopicState.loading(total: total, totalSaved: totalSaved));
       },
-    );
+    ));
 
-    await _save(
+    futures.add(_save(
       ids: russian,
       topic: draftTopic,
       data: draftTopic.ru,
@@ -168,9 +168,9 @@ class SaveTopicCubit extends Cubit<SaveTopicState> {
         totalSaved++;
         emit(SaveTopicState.loading(total: total, totalSaved: totalSaved));
       },
-    );
+    ));
 
-    await _save(
+    futures.add(_save(
       ids: french,
       topic: draftTopic,
       data: draftTopic.fr,
@@ -178,9 +178,9 @@ class SaveTopicCubit extends Cubit<SaveTopicState> {
         totalSaved++;
         emit(SaveTopicState.loading(total: total, totalSaved: totalSaved));
       },
-    );
+    ));
 
-    await _save(
+    futures.add(_save(
       ids: dutch,
       topic: draftTopic,
       data: draftTopic.nl,
@@ -188,9 +188,9 @@ class SaveTopicCubit extends Cubit<SaveTopicState> {
         totalSaved++;
         emit(SaveTopicState.loading(total: total, totalSaved: totalSaved));
       },
-    );
+    ));
 
-    await _save(
+    futures.add(_save(
       ids: ukrainian,
       topic: draftTopic,
       data: draftTopic.uk,
@@ -198,8 +198,10 @@ class SaveTopicCubit extends Cubit<SaveTopicState> {
         totalSaved++;
         emit(SaveTopicState.loading(total: total, totalSaved: totalSaved));
       },
-    );
+    ));
 
+    await Future.wait(futures);
+    await Future.delayed(const Duration(seconds: 1));
     emit(const SaveTopicState.successfully());
   }
 
