@@ -13,12 +13,19 @@ class _Sidebar extends StatelessWidget {
           itemBuilder: (context, index) {
             Course course = courses[index];
 
+            bool isSelected = state.selected?.id == course.id;
+
             return InkWell(
-              onTap: () {},
+              onTap: () {
+                context.read<CourseCubit>().setSelected(course);
+              },
               child: Container(
                 padding: const EdgeInsets.symmetric(
                   horizontal: 20,
                   vertical: 20,
+                ),
+                decoration: BoxDecoration(
+                  color: isSelected ? Colors.black12 : null,
                 ),
                 child: Row(
                   children: [
@@ -59,12 +66,22 @@ class _Section extends StatelessWidget {
       builder: (context, state) {
         List<Topic> topics = state.topics;
 
-        return Column(
-          children: topics.map(
-            (e) {
-              return _TopicCard(e);
-            },
-          ).toList(),
+        bool isLoading =
+            state.maybeWhen(orElse: () => false, loading: (_) => true);
+
+        if (isLoading) {
+          return const Center(child: CircularProgressIndicator());
+        }
+
+        return MasonryGridView.count(
+          padding: const EdgeInsets.all(24),
+          crossAxisCount: 3,
+          mainAxisSpacing: 16,
+          crossAxisSpacing: 16,
+          itemCount: topics.length,
+          itemBuilder: (context, index) {
+            return _TopicCard(topics[index]);
+          },
         );
       },
     );
@@ -79,22 +96,70 @@ class _TopicCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(
+          16,
+        ),
+        border: Border.all(
+          color: Colors.grey[300]!,
+        ),
+      ),
       child: Column(
         children: [
-          ClipRRect(
-            borderRadius: BorderRadius.circular(25),
-            child: AspectRatio(
-              aspectRatio: 16 / 9,
-              child: CachedNetworkImage(
-                imageUrl: data.image,
-                fit: BoxFit.cover,
+          if (data.image != null)
+            ClipRRect(
+              borderRadius: const BorderRadius.only(
+                topLeft: Radius.circular(16),
+                topRight: Radius.circular(16),
+              ),
+              child: AspectRatio(
+                aspectRatio: 16 / 9,
+                child: CachedNetworkImage(
+                  imageUrl: data.image!,
+                  fit: BoxFit.cover,
+                ),
               ),
             ),
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  data.name,
+                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                        fontWeight: FontWeight.w600,
+                      ),
+                ),
+                Text(
+                  data.description,
+                  style: Theme.of(context).textTheme.bodyMedium,
+                ),
+                const SizedBox(height: 8),
+                Container(
+                  decoration: BoxDecoration(
+                    color: data.level == "Beginner"
+                        ? Colors.green
+                        : data.level == "Intermediate"
+                            ? Colors.orange
+                            : Colors.redAccent,
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 4,
+                  ),
+                  child: Text(
+                    data.level,
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          color: Colors.white,
+                        ),
+                  ),
+                )
+              ],
+            ),
           ),
-          Text(
-            data.name,
-          ),
-          Text(data.description),
         ],
       ),
     );

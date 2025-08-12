@@ -4,6 +4,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 
 import '../../cubit/cubit.dart';
 import '../../data/data.dart';
@@ -41,7 +42,7 @@ class _HomeScreenState extends State<HomeScreen> {
             );
           }
 
-          return Row(
+          return const Row(
             children: [
               const SizedBox(
                 width: 300,
@@ -55,14 +56,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
               Expanded(
-                child: SingleChildScrollView(
-                  child: Column(
-                    children: [
-                      _TopicGenerator(),
-                      //   _Section(),
-                    ],
-                  ),
-                ),
+                child: _Section(),
               ),
             ],
           );
